@@ -10,9 +10,9 @@ import (
 
 // Partnum represents a structure to store number and points
 type Partnum struct {
-	number  string
-	points  []point
-	isPart  bool
+	number string
+	points []point
+	isPart bool
 }
 
 type point struct {
@@ -50,6 +50,19 @@ func isSymbol(char string) bool {
 	}
 	if char == "." {
 		return false
+	}
+	return true
+}
+
+// isEqual checks if two Partnum structs are equal
+func isEqual(a, b Partnum) bool {
+	if a.number != b.number || a.isPart != b.isPart || len(a.points) != len(b.points) {
+		return false
+	}
+	for i := range a.points {
+		if a.points[i] != b.points[i] {
+			return false
+		}
 	}
 	return true
 }
@@ -159,7 +172,7 @@ func main() {
 				for _, part := range gearParts {
 					found := false
 					for _, uniquePart := range uniqueGearParts {
-						if part == uniquePart {
+						if isEqual(part, uniquePart) {
 							found = true
 							break
 						}
@@ -167,7 +180,7 @@ func main() {
 					if !found {
 						uniqueGearParts = append(uniqueGearParts, part)
 					}
-				}
+				}g
 
 				if len(uniqueGearParts) == 2 {
 					num1, _ := strconv.Atoi(uniqueGearParts[0].number)
@@ -182,4 +195,3 @@ func main() {
 
 	fmt.Println("ans part2", ans)
 }
-
