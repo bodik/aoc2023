@@ -91,6 +91,7 @@ def detect_loop(data, start):
         new_point = move(start, direction)
         incoming = swap(direction)
         if incoming in can_connect[data[new_point]]:
+
             current, path = start, [start]
             while True:
                 new_point = move(current, direction)
@@ -104,6 +105,7 @@ def detect_loop(data, start):
                 new_direction = can_connect[data[new_point]].copy()
                 new_direction.remove(incoming)
                 direction = new_direction[0]
+                incoming = swap(direction)
                 current = new_point
                 path.append(current)
 
@@ -114,11 +116,11 @@ def main():
     """main"""
 
     parser = ArgumentParser()
-    parser.add_argument('input')
-    args = parser.parse_args()
-    logging.info(args)
+#    parser.add_argument('input')
+#    args = parser.parse_args()
+#    logging.info(args)
 
-    data = Path(args.input).read_text('utf-8').splitlines()
+    data = Path('/workspaces/aoc2023/day10/input.test1').read_text('utf-8').splitlines()
     data = np.array(list(map(list, data)), dtype=str)
     rows, cols = data.shape
     start = np.where(data=='S')
