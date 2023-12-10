@@ -42,7 +42,7 @@ def get_adjacent_points(point, boundary):
     """uses row,col notation"""
     points = []
 
-    for vector in [(-1,0), (0, 1), (1, 0), (0, -1)]:
+    for vector in [NORTH, EAST, SOUTH, WEST]:
         tmp = tuple(map(operator.add, point, vector))
         if (tmp[0] < 0) or (tmp[0] > boundary[0]-1):
             continue
@@ -53,7 +53,15 @@ def get_adjacent_points(point, boundary):
     return points
 
 
-def detect_loop(data, point, path):
+def move(point, direction):
+    return tuple(map(operator.add, point, direction))
+
+
+def swap(direction):
+    return tuple(map(operator.mul, direction, (-1, -1)))
+
+
+def detect_loop(data, start):
 
     can_connect = {
         # | is a vertical pipe connecting north and south.
@@ -72,39 +80,34 @@ def detect_loop(data, point, path):
         '.': [],
     }
 
-    print(f'DEBUG: path {path}')
-    adjacent = get_adjacent_points(point, data.shape)
-    print(f'DEBUG: current {point} adj {adjacent}')
-    for new_point in adjacent:
-        direction = tuple(map(operator.sub, new_point, point))
-        new_point_content = data[new_point]
+    assert swap(NORTH) == SOUTH
+    assert swap(SOUTH) == NORTH
+    assert swap(EAST) == WEST
 
-        if len(path) > 1 and new_point_content == 'S':
-            return path + [point]
+    # ! missing check if start field os not on the edge of map
+    
+    # start north
+    for direction in NORTH, SOUTH, EAST, WEST:
+        new_point = move(start, direction)
+        incoming = swap(direction)
+        if incoming in can_connect[data[new_point]]:
+            current, path = start, [start]
+            while True:
+                new_point = move(current, direction)
+                new_point_content = data[new_point]
+                if new_point_content == 'S':
+                    return path + [new_point]
 
-        if new_point in path:
-            continue
+                if incoming not in can_connect[new_point_content]:
+                    break
+                
+                new_direction = can_connect[data[new_point]].copy()
+                new_direction.remove(incoming)
+                direction = new_direction[0]
+                current = new_point
+                path.append(current)
 
-        if (direction == NORTH) and (SOUTH in can_connect[new_point_content]):
-            pass
-        elif (direction == SOUTH) and (NORTH in can_connect[new_point_content]):
-            pass
-        elif (direction == WEST) and (EAST in can_connect[new_point_content]):
-            pass
-        elif (direction == EAST) and (WEST in can_connect[new_point_content]):
-            pass
-        else:
-            continue
-
-        try:
-            debug_print_path(data, path + [new_point])
-            debug_trace_path(data, path + [new_point])
-            return detect_loop(data, new_point, path + [new_point])
-        except RuntimeError:
-            continue
-
-    print('DEBUG: failed to find correct next point')
-    raise RuntimeError('loop detection failed')
+    raise RuntimeError('path not found')
 
 
 def main():
@@ -126,7 +129,7 @@ def main():
     print('corners', data[0,0], data[-1, -1])
     print('start', start)
 
-    path = detect_loop(data, start, [start])
+    path = detect_loop(data, start)
     print(path)
     print(f'ans {(len(path)-1)/2}')
 
