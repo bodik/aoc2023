@@ -116,11 +116,12 @@ def main():
     """main"""
 
     parser = ArgumentParser()
-#    parser.add_argument('input')
-#    args = parser.parse_args()
-#    logging.info(args)
+    parser.add_argument('input')
+    args = parser.parse_args()
+    logging.info(args)
 
-    data = Path('/workspaces/aoc2023/day10/input.test1').read_text('utf-8').splitlines()
+    #data = Path('/workspaces/aoc2023/day10/input.test1').read_text('utf-8').splitlines()
+    data = Path(args.input).read_text('utf-8').splitlines()
     data = np.array(list(map(list, data)), dtype=str)
     rows, cols = data.shape
     start = np.where(data=='S')
